@@ -10,7 +10,7 @@ else:
     get_model = apps.get_model
 from django.forms.models import ModelChoiceIterator
 from django.http import HttpResponse
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 
 from .fields import ManyToManyField
 
@@ -135,13 +135,13 @@ class Select2View(object):
         queryset = field.queryset.filter(**{
             (u'%s__in' % field.rel.get_related_field().name): pks,
         }).distinct()
-        pk_ordering = dict([(force_unicode(pk), i) for i, pk in enumerate(pks)])
+        pk_ordering = dict([(force_str(pk), i) for i, pk in enumerate(pks)])
 
         data = self.get_data(queryset)
 
         # Make sure we return in the same order we were passed
         def results_sort_callback(item):
-            pk = force_unicode(item['id'])
+            pk = force_str(item['id'])
             return pk_ordering[pk]
         data['results'] = sorted(data['results'], key=results_sort_callback)
 

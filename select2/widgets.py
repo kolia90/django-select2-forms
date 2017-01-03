@@ -16,7 +16,7 @@ except ImportError:
     MergeDict = type('MergeDict', (object, ), {})
 
 from django.utils.html import escape, conditional_escape
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 
 from .utils import combine_css_classes
@@ -149,7 +149,7 @@ class Select(widgets.Input):
         return mark_safe(u'\n'.join(output))
 
     def render_option(self, selected_choices, option_value, option_label):
-        option_value = force_unicode(option_value)
+        option_value = force_str(option_value)
         if option_value in selected_choices:
             selected_html = u' selected="selected"'
             if not self.allow_multiple_selected:
@@ -159,15 +159,16 @@ class Select(widgets.Input):
             selected_html = ''
         return u'<option value="%s"%s>%s</option>' % (
             escape(option_value), selected_html,
-            conditional_escape(force_unicode(option_label)))
+            conditional_escape(force_str(option_label)))
 
     def render_options(self, choices, selected_choices):
         # Normalize to strings.
-        selected_choices = set(force_unicode(v) for v in selected_choices)
+        selected_choices = set(force_str(v) for v in selected_choices)
         output = []
         for option_value, option_label in chain(self.choices, choices):
             if isinstance(option_label, (list, tuple)):
-                output.append(u'<optgroup label="%s">' % escape(force_unicode(option_value)))
+                output.append(u'<optgroup label="%s">' % escape(force_str(
+                    option_value)))
                 for option in option_label:
                     output.append(self.render_option(selected_choices, *option))
                 output.append(u'</optgroup>')
@@ -199,7 +200,7 @@ class SelectMultiple(Select):
 
     def _format_value(self, value):
         if isinstance(value, list):
-            value = u','.join([force_unicode(v) for v in value])
+            value = u','.join([force_str(v) for v in value])
         return value
 
     # Restrict defining the _has_changed method to earlier than Django 1.6.
