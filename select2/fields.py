@@ -4,7 +4,7 @@ from django.db import models
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import ModelChoiceIterator
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from django.utils.functional import Promise
 from django.db.models.fields.related import add_lazy_relation
 
@@ -169,14 +169,14 @@ class ModelMultipleChoiceField(Select2ModelFieldMixin, forms.ModelMultipleChoice
         qs = self.queryset.filter(**{
             ('%s__in' % key): value,
         })
-        pks = set([force_unicode(getattr(o, key)) for o in qs])
+        pks = set([force_str(getattr(o, key)) for o in qs])
 
         # Create a dictionary for storing the original order of the items
         # passed from the form
         pk_positions = {}
 
         for i, val in enumerate(value):
-            pk = force_unicode(val)
+            pk = force_str(val)
             if pk not in pks:
                 raise ValidationError(self.error_messages['invalid_choice'] % val)
             pk_positions[pk] = i
@@ -190,7 +190,7 @@ class ModelMultipleChoiceField(Select2ModelFieldMixin, forms.ModelMultipleChoice
             sort_field_name = self.sort_field.name
             objs = []
             for i, obj in enumerate(qs):
-                pk = force_unicode(getattr(obj, key))
+                pk = force_str(getattr(obj, key))
                 setattr(obj, sort_field_name, pk_positions[pk])
                 objs.append(obj)
             sorted(objs, key=lambda obj: getattr(obj, sort_field_name))

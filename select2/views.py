@@ -28,7 +28,7 @@ class JsonResponse(HttpResponse):
     callback = None
 
     def __init__(self, content='', callback=None, content_type="application/json", *args, **kwargs):
-        if not isinstance(content, basestring):
+        if not isinstance(content, str):
             content = json.dumps(content)
         if callback is not None:
             self.callback = callback
@@ -116,8 +116,8 @@ class Select2View(object):
     def init_selection(self):
         try:
             field, model_cls = self.get_field_and_model()
-        except ViewException, e:
-            return self.get_response({'error': unicode(e)}, status=500)
+        except ViewException as e:
+            return self.get_response({'error': str(e)}, status=500)
 
         q = self.request.GET.get('q', None)
         try:
@@ -125,12 +125,12 @@ class Select2View(object):
                 raise InvalidParameter("q parameter required")
             pks = q.split(u',')
             try:
-                pks = [long(pk) for pk in pks]
+                pks = [int(pk) for pk in pks]
             except TypeError:
                 raise InvalidParameter("q parameter must be comma separated "
                                        "list of integers")
-        except InvalidParameter, e:
-            return self.get_response({'error': unicode(e)}, status=500)
+        except InvalidParameter as e:
+            return self.get_response({'error': str(e)}, status=500)
 
         queryset = field.queryset.filter(**{
             (u'%s__in' % field.rel.get_related_field().name): pks,
@@ -161,8 +161,8 @@ class Select2View(object):
     def fetch_items(self):
         try:
             field, model_cls = self.get_field_and_model()
-        except ViewException, e:
-            return self.get_response({'error': unicode(e)}, status=500)
+        except ViewException as e:
+            return self.get_response({'error': str(e)}, status=500)
 
         queryset = copy.deepcopy(field.queryset)
 
@@ -188,8 +188,8 @@ class Select2View(object):
             else:
                 if page < 1:
                     raise InvalidParameter("Invalid page '%s' passed")
-        except InvalidParameter, e:
-            return self.get_response({'error': unicode(e)}, status=500)
+        except InvalidParameter as e:
+            return self.get_response({'error': str(e)}, status=500)
 
         search_field = field.search_field
         if callable(search_field):
